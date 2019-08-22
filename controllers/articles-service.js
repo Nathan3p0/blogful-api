@@ -7,6 +7,9 @@ const ArticlesService = {
     },
     postNewArticle(knex, article) {
         return knex('blogful_articles').insert(article);
+    },
+    deleteArticle(knex, id) {
+        return knex('blogful_articles').where('id', id).del()
     }
 };
 

@@ -17,7 +17,7 @@ app.use(cors());
 
 app.use(errorHandler);
 
-app.use('/articles', articlesRoutes);
+app.use('/api/articles', articlesRoutes);
 
 app.get('/', (req, res) => {
     res.status(200).send('Hello, boilerplate!');

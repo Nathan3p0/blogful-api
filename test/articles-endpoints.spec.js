@@ -20,7 +20,7 @@ describe('Articles Endpoints', () => {
     context(`Given no articles`, () => {
         it(`responds with 200 and an empty list`, () => {
             return supertest(app)
-                .get('/articles')
+                .get('/api/articles')
                 .expect(200, [])
         })
     })
@@ -36,20 +36,20 @@ describe('Articles Endpoints', () => {
 
         afterEach('cleanup', () => db('blogful_articles').truncate())
 
-        it(`GET /articles responds with 200 and all of the articles"`, () => {
+        it(`GET /api/articles responds with 200 and all of the articles"`, () => {
             return supertest(app)
-                .get('/articles')
+                .get('/api/articles')
                 .expect(200, testArticles);
         });
 
-        describe('GET /articles/:article_id', () => {
+        describe('GET /api/articles/:article_id', () => {
             context('With articles supplied', () => {
                 it('GET /article/:article_id responds with 200 and the specified article', () => {
                     const articleId = 2
                     const testArticles = makeArticlesArray();
                     const expectedArticle = testArticles[articleId - 1]
                     return supertest(app)
-                        .get(`/articles/${articleId}`)
+                        .get(`/api/articles/${articleId}`)
                         .expect(200, expectedArticle)
                 })
             });
@@ -58,14 +58,14 @@ describe('Articles Endpoints', () => {
                 it('GET /article/:article_id responds with 404', () => {
                     const articleId = 123456
                     return supertest(app)
-                        .get(`/articles/${articleId}`)
+                        .get(`/api/articles/${articleId}`)
                         .expect(404, { error: { message: 'Article doesn\'t exist' } })
                 })
             })
 
         });
 
-        describe(`POST /articles`, () => {
+        describe(`POST /api/articles`, () => {
             it(`creates an article, responding with 201 and the new article`, () => {
                 const newArticle = {
                     title: 'Test new article',
@@ -73,7 +73,7 @@ describe('Articles Endpoints', () => {
                     content: 'Test new article content...'
                 }
                 return supertest(app)
-                    .post('/articles')
+                    .post('/api/articles')
                     .send(newArticle)
                     .expect(201)
                     .expect(res => {
@@ -81,16 +81,16 @@ describe('Articles Endpoints', () => {
                         expect(res.body.style).to.eql(newArticle.style)
                         expect(res.body.content).to.eql(newArticle.content)
                         expect(res.body).to.have.property('id')
-                        expect(res.headers.location).to.eql(`/articles/${res.body.id}`)
+                        expect(res.headers.location).to.eql(`/api/articles/${res.body.id}`)
                         const expected = new Date().toLocaleString();
                         const actual = new Date(res.body.date_published).toLocaleString();
                         expect(actual).to.eql(expected)
                     })
-                    .then(postRes =>
-                        supertest(app)
-                            .get(`/articles/${postRes.body.id}`)
+                    .then(postRes => {
+                        return supertest(app)
+                            .get(`/api/articles/${postRes.body.id}`)
                             .expect(postRes.body)
-                    )
+                    })
             })
         })
     });
